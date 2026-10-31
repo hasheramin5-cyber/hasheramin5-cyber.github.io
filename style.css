@@ -425,3 +425,105 @@ dd {
     display: none
   }
 }
+
+/* ===== MOBILE POLISH — paste at the very bottom of style.css ===== */
+@media (max-width: 800px) {
+
+  /* home: tattoos sit above and below the name instead of behind it */
+  .tat {
+    max-width: 70vw;
+    max-height: none;
+    height: 22vh;
+    opacity: .9;
+  }
+
+  .tat.l {
+    top: 64px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
+
+  .tat.r {
+    top: auto;
+    bottom: 84px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
+
+  /* bring back the small corner text and the faint side art */
+  .corner {
+    display: block;
+    top: 16px;
+    font-size: .62rem;
+  }
+
+  .tl {
+    left: 16px;
+  }
+
+  .bg2 {
+    display: block;
+    max-width: 42vw;
+    opacity: .08;
+  }
+
+  /* bigger tap targets (fingers need ~44px) */
+  .menu {
+    gap: 6px 26px;
+    margin-top: 34px;
+  }
+
+  .menu button {
+    padding: 12px 6px;
+    font-size: 1rem;
+  }
+
+  .back {
+    top: 10px;
+    left: 10px;
+    padding: 12px 14px;
+  }
+
+  .social {
+    gap: 4px;
+  }
+
+  .social a {
+    padding: 11px;
+  }
+
+  .social svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* inner pages: tighter side padding and spacing */
+  .inner {
+    padding: 78px 20px 56px;
+  }
+
+  .grid {
+    gap: 10px;
+  }
+
+  .proj {
+    padding: 28px 0;
+    gap: 18px;
+  }
+}
+
+/* phones/tablets have no hover, so show images in colour instead of staying grey */
+@media (hover: none) {
+
+  .shot img,
+  .g img,
+  .portrait img {
+    filter: none;
+  }
+
+  .social svg {
+    fill: #bdbdbd;
+  }
+}
