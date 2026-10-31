@@ -1,135 +1,40 @@
-/* ==================================================
-   HASHER AMIN — PORTFOLIO / 126
-   Vanilla JS: mobile nav, scroll reveals, active-link
-   tracking, and graceful hero-photo fallback.
-   ================================================== */
+// Page switching: one view at a time, no scrolling between sections
+const views=[...document.querySelectorAll('.view')];
+function show(id){if(!views.some(v=>v.id===id))id='home';views.forEach(v=>v.classList.toggle('active',v.id===id));scrollTo(0,0)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)location.hash=b.dataset.go==='home'?'':b.dataset.go});
+addEventListener('hashchange',()=>show(location.hash.slice(1)));show(location.hash.slice(1));
 
-(function () {
-  "use strict";
+// Gallery (photo list lives in config.js)
+const grid=document.getElementById('grid'),lb=document.getElementById('lb');
+GALLERY.forEach((src,n)=>{
+  const b=document.createElement('button');b.className='g';
+  b.innerHTML='<img src="'+src+'" alt="Gallery image '+(n+1)+'" loading="lazy"><div class="ph">'+src+'</div>';
+  const im=b.querySelector('img');
+  im.onerror=()=>{im.remove();b.classList.add('empty')};
+  b.onclick=()=>{if(im.isConnected){lb.firstElementChild.src=im.src;lb.classList.add('on')}};
+  grid.appendChild(b);
+});
+lb.onclick=()=>lb.classList.remove('on');
+addEventListener('keydown',e=>{if(e.key==='Escape')lb.classList.remove('on')});
 
-  var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+// Background music, controlled from code only (no visitor controls)
+const MUSIC_ON = true;   // set to false to switch the music off for everyone
+const VOLUME = 0.4;      // 0 (silent) to 1 (full)
 
-  /* ------------------------------------------------
-     Mobile navigation toggle
-     ------------------------------------------------ */
-  var navToggle = document.getElementById("navToggle");
-  var navLinks = document.getElementById("navLinks");
+const bgm = document.getElementById('bgm');
+bgm.volume = VOLUME;
 
-  if (navToggle && navLinks) {
-    navToggle.addEventListener("click", function () {
-      var isOpen = navLinks.classList.toggle("is-open");
-      navToggle.setAttribute("aria-expanded", String(isOpen));
-    });
-
-    navLinks.querySelectorAll("a").forEach(function (link) {
-      link.addEventListener("click", function () {
-        navLinks.classList.remove("is-open");
-        navToggle.setAttribute("aria-expanded", "false");
-      });
-    });
-  }
-
-  /* ------------------------------------------------
-     Hero load-in sequence
-     ------------------------------------------------ */
-  window.requestAnimationFrame(function () {
-    document.body.classList.add("is-loaded");
+if (MUSIC_ON) {
+  // Try to autoplay on load. If the browser blocks it,
+  // start on the visitor's first click, tap or key press.
+  bgm.play().catch(() => {
+    const events = ['pointerdown', 'keydown', 'touchstart'];
+    const start = () => {
+      bgm.play().catch(() => {});
+      events.forEach(e => removeEventListener(e, start));
+    };
+    events.forEach(e => addEventListener(e, start));
   });
-
-  /* ------------------------------------------------
-     Hero photo — graceful placeholder if the source
-     image at assets/profile.jpg hasn't been added yet.
-     ------------------------------------------------ */
-  var heroPhoto = document.getElementById("heroPhoto");
-  var heroPhotoImg = document.getElementById("heroPhotoImg");
-
-  if (heroPhoto && heroPhotoImg) {
-    heroPhotoImg.addEventListener("error", function () {
-      heroPhotoImg.setAttribute("data-broken", "true");
-      heroPhoto.classList.add("no-photo");
-    });
-
-    // Handle the case where the image is already broken by the
-    // time this script runs (e.g. cached 404).
-    if (heroPhotoImg.complete && heroPhotoImg.naturalWidth === 0) {
-      heroPhotoImg.setAttribute("data-broken", "true");
-      heroPhoto.classList.add("no-photo");
-    }
-  }
-
-  /* ------------------------------------------------
-     Scroll-triggered reveals
-     ------------------------------------------------ */
-  var revealEls = document.querySelectorAll(".reveal");
-
-  if ("IntersectionObserver" in window && revealEls.length) {
-    var revealObserver = new IntersectionObserver(
-      function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            revealObserver.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
-    );
-
-    revealEls.forEach(function (el) {
-      revealObserver.observe(el);
-    });
-  } else {
-    // No IntersectionObserver support (or reduced motion) —
-    // just show everything.
-    revealEls.forEach(function (el) {
-      el.classList.add("is-visible");
-    });
-  }
-
-  /* ------------------------------------------------
-     Active nav-link tracking
-     ------------------------------------------------ */
-  var sections = ["work", "about", "experience", "contact"]
-    .map(function (id) { return document.getElementById(id); })
-    .filter(Boolean);
-
-  var navAnchors = navLinks ? navLinks.querySelectorAll("a") : [];
-
-  function setActiveLink(id) {
-    navAnchors.forEach(function (a) {
-      var match = a.getAttribute("href") === "#" + id;
-      a.classList.toggle("is-active", match);
-    });
-  }
-
-  if ("IntersectionObserver" in window && sections.length) {
-    var sectionObserver = new IntersectionObserver(
-      function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            setActiveLink(entry.target.id);
-          }
-        });
-      },
-      { rootMargin: "-45% 0px -45% 0px" }
-    );
-
-    sections.forEach(function (section) {
-      sectionObserver.observe(section);
-    });
-  }
-
-  /* ------------------------------------------------
-     Project row interactions — keyboard + touch parity
-     with the CSS :hover treatment.
-     ------------------------------------------------ */
-  document.querySelectorAll(".project").forEach(function (project) {
-    project.addEventListener("focusin", function () {
-      project.classList.add("is-hovered");
-    });
-    project.addEventListener("focusout", function () {
-      project.classList.remove("is-hovered");
-    });
-  });
-
-})();
+} else {
+  bgm.pause();
+}
